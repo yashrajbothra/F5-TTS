@@ -266,6 +266,7 @@ with gr.Blocks() as app_tts:
             speed_slider,
         ],
         outputs=[audio_output, spectrogram_output, ref_text_input],
+        concurrency_limit=3  # Set to desired number of concurrent requests
     )
 
 
