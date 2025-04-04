@@ -266,7 +266,6 @@ with gr.Blocks() as app_tts:
             speed_slider,
         ],
         outputs=[audio_output, spectrogram_output, ref_text_input],
-        concurrency_limit=3  # Set to desired number of concurrent requests
     )
 
 
@@ -767,14 +766,7 @@ Have a conversation with an AI using your reference voice!
 with gr.Blocks() as app:
     gr.Markdown(
         f"""
-# E2/F5 TTS
-
-This is {"a local web UI for [F5 TTS](https://github.com/SWivid/F5-TTS)" if not USING_SPACES else "an online demo for [F5-TTS](https://github.com/SWivid/F5-TTS)"} with advanced batch processing support. This app supports the following TTS models:
-
-* [F5-TTS](https://arxiv.org/abs/2410.06885) (A Fairytaler that Fakes Fluent and Faithful Speech with Flow Matching)
-* [E2 TTS](https://arxiv.org/abs/2406.18009) (Embarrassingly Easy Fully Non-Autoregressive Zero-Shot TTS)
-
-The checkpoints currently support English and Chinese.
+# Talkclone
 
 If you're having issues, try converting your reference audio to WAV or MP3, clipping it to 12s with  ✂  in the bottom right corner (otherwise might have non-optimal auto-trimmed result).
 
@@ -935,6 +927,7 @@ def main(port, host, share, api, root_path, inbrowser):
         show_api=api,
         root_path=root_path,
         inbrowser=inbrowser,
+        pwa=True,
     )
 
 

@@ -1889,7 +1889,6 @@ Reduce the Base model size from 5GB to 1.3GB. The new checkpoint file prunes out
     is_flag=True,
     help="Share the app via Gradio share link",
 )
-@click.option("--api", "-a", default=True, is_flag=True, help="Allow API access")
 def main(port, host, share, api):
     global app
     print("Starting app...")
