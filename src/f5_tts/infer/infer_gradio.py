@@ -807,88 +807,9 @@ If you're having issues, try converting your reference audio to WAV or MP3, clip
         with open(last_used_custom, "w", encoding="utf-8") as f:
             f.write(custom_ckpt_path + "\n" + custom_vocab_path + "\n" + custom_model_cfg + "\n")
 
-    with gr.Row():
-        if not USING_SPACES:
-            choose_tts_model = gr.Radio(
-                choices=[DEFAULT_TTS_MODEL, "E2-TTS", "Custom"], label="Choose TTS Model", value=DEFAULT_TTS_MODEL
-            )
-        else:
-            choose_tts_model = gr.Radio(
-                choices=[DEFAULT_TTS_MODEL, "E2-TTS"], label="Choose TTS Model", value=DEFAULT_TTS_MODEL
-            )
-        custom_ckpt_path = gr.Dropdown(
-            choices=[DEFAULT_TTS_MODEL_CFG[0]],
-            value=load_last_used_custom()[0],
-            allow_custom_value=True,
-            label="Model: local_path | hf://user_id/repo_id/model_ckpt",
-            visible=False,
-        )
-        custom_vocab_path = gr.Dropdown(
-            choices=[DEFAULT_TTS_MODEL_CFG[1]],
-            value=load_last_used_custom()[1],
-            allow_custom_value=True,
-            label="Vocab: local_path | hf://user_id/repo_id/vocab_file",
-            visible=False,
-        )
-        custom_model_cfg = gr.Dropdown(
-            choices=[
-                DEFAULT_TTS_MODEL_CFG[2],
-                json.dumps(
-                    dict(
-                        dim=1024,
-                        depth=22,
-                        heads=16,
-                        ff_mult=2,
-                        text_dim=512,
-                        text_mask_padding=False,
-                        conv_layers=4,
-                        pe_attn_head=1,
-                    )
-                ),
-                json.dumps(
-                    dict(
-                        dim=768,
-                        depth=18,
-                        heads=12,
-                        ff_mult=2,
-                        text_dim=512,
-                        text_mask_padding=False,
-                        conv_layers=4,
-                        pe_attn_head=1,
-                    )
-                ),
-            ],
-            value=load_last_used_custom()[2],
-            allow_custom_value=True,
-            label="Config: in a dictionary form",
-            visible=False,
-        )
-
-    choose_tts_model.change(
-        switch_tts_model,
-        inputs=[choose_tts_model],
-        outputs=[custom_ckpt_path, custom_vocab_path, custom_model_cfg],
-        show_progress="hidden",
-    )
-    custom_ckpt_path.change(
-        set_custom_model,
-        inputs=[custom_ckpt_path, custom_vocab_path, custom_model_cfg],
-        show_progress="hidden",
-    )
-    custom_vocab_path.change(
-        set_custom_model,
-        inputs=[custom_ckpt_path, custom_vocab_path, custom_model_cfg],
-        show_progress="hidden",
-    )
-    custom_model_cfg.change(
-        set_custom_model,
-        inputs=[custom_ckpt_path, custom_vocab_path, custom_model_cfg],
-        show_progress="hidden",
-    )
-
     gr.TabbedInterface(
-        [app_tts, app_multistyle, app_chat, app_credits],
-        ["Basic-TTS", "Multi-Speech", "Voice-Chat", "Credits"],
+        [app_tts, app_multistyle],
+        ["Basic-TTS", "Multi-Speech"],
     )
 
 
@@ -902,7 +823,7 @@ If you're having issues, try converting your reference audio to WAV or MP3, clip
     is_flag=True,
     help="Share the app via Gradio share link",
 )
-@click.option("--api", "-a", default=True, is_flag=True, help="Allow API access")
+@click.option("--api", "-a", default=False, is_flag=True, help="Allow API access")
 @click.option(
     "--root_path",
     "-r",
