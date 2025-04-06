@@ -763,7 +763,7 @@ Have a conversation with an AI using your reference voice!
         )
 
 
-with gr.Blocks() as app:
+with gr.Blocks(css="footer {visibility: hidden;}") as app:
     gr.Markdown(
         f"""
 # Talkclone
@@ -812,6 +812,10 @@ If you're having issues, try converting your reference audio to WAV or MP3, clip
         ["Basic-TTS", "Multi-Speech"],
     )
 
+    gr.Markdown(
+        "Made With Love❤️ From Noman Elahi Dashti",
+        elem_id="custom-footer"
+    )
 
 @click.command()
 @click.option("--port", "-p", default=None, type=int, help="Port to run the app on")
