@@ -763,7 +763,14 @@ Have a conversation with an AI using your reference voice!
         )
 
 
-with gr.Blocks(css="footer {visibility: hidden;}") as app:
+with gr.Blocks(css="""
+        footer { visibility: hidden; }
+        #custom-footer {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 2rem;
+        }
+    """) as app:
     gr.Markdown(
         f"""
 # Talkclone
