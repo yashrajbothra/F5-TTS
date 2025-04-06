@@ -180,14 +180,6 @@ def infer(
     return (final_sample_rate, final_wave), spectrogram_path, ref_text
 
 
-with gr.Blocks() as app_credits:
-    gr.Markdown("""
-# Credits
-
-* [mrfakename](https://github.com/fakerybakery) for the original [online demo](https://huggingface.co/spaces/mrfakename/E2-F5-TTS)
-* [RootingInLoad](https://github.com/RootingInLoad) for initial chunk generation and podcast app exploration
-* [jpgallegoar](https://github.com/jpgallegoar) for multiple speech-type generation & voice chat
-""")
 with gr.Blocks() as app_tts:
     gr.Markdown("# Batched TTS")
     ref_audio_input = gr.Audio(label="Reference Audio", type="filepath")
@@ -539,238 +531,17 @@ with gr.Blocks() as app_multistyle:
         outputs=generate_multistyle_btn,
     )
 
-
-with gr.Blocks() as app_chat:
-    gr.Markdown(
-        """
-# Voice Chat
-Have a conversation with an AI using your reference voice! 
-1. Upload a reference audio clip and optionally its transcript.
-2. Load the chat model.
-3. Record your message through your microphone.
-4. The AI will respond using the reference voice.
-"""
-    )
-
-    chat_model_name_list = [
-        "Qwen/Qwen2.5-3B-Instruct",
-        "microsoft/Phi-4-mini-instruct",
-    ]
-
-    @gpu_decorator
-    def load_chat_model(chat_model_name):
-        show_info = gr.Info
-        global chat_model_state, chat_tokenizer_state
-        if chat_model_state is not None:
-            chat_model_state = None
-            chat_tokenizer_state = None
-            gc.collect()
-            torch.cuda.empty_cache()
-
-        show_info(f"Loading chat model: {chat_model_name}")
-        chat_model_state = AutoModelForCausalLM.from_pretrained(chat_model_name, torch_dtype="auto", device_map="auto")
-        chat_tokenizer_state = AutoTokenizer.from_pretrained(chat_model_name)
-        show_info(f"Chat model {chat_model_name} loaded successfully!")
-
-        return gr.update(visible=False), gr.update(visible=True)
-
-    if USING_SPACES:
-        load_chat_model(chat_model_name_list[0])
-
-    chat_model_name_input = gr.Dropdown(
-        choices=chat_model_name_list,
-        value=chat_model_name_list[0],
-        label="Chat Model Name",
-        info="Enter the name of a HuggingFace chat model",
-        allow_custom_value=not USING_SPACES,
-    )
-    load_chat_model_btn = gr.Button("Load Chat Model", variant="primary", visible=not USING_SPACES)
-    chat_interface_container = gr.Column(visible=USING_SPACES)
-
-    chat_model_name_input.change(
-        lambda: gr.update(visible=True),
-        None,
-        load_chat_model_btn,
-        show_progress="hidden",
-    )
-    load_chat_model_btn.click(
-        load_chat_model, inputs=[chat_model_name_input], outputs=[load_chat_model_btn, chat_interface_container]
-    )
-
-    with chat_interface_container:
-        with gr.Row():
-            with gr.Column():
-                ref_audio_chat = gr.Audio(label="Reference Audio", type="filepath")
-            with gr.Column():
-                with gr.Accordion("Advanced Settings", open=False):
-                    remove_silence_chat = gr.Checkbox(
-                        label="Remove Silences",
-                        value=True,
-                    )
-                    ref_text_chat = gr.Textbox(
-                        label="Reference Text",
-                        info="Optional: Leave blank to auto-transcribe",
-                        lines=2,
-                    )
-                    system_prompt_chat = gr.Textbox(
-                        label="System Prompt",
-                        value="You are not an AI assistant, you are whoever the user says you are. You must stay in character. Keep your responses concise since they will be spoken out loud.",
-                        lines=2,
-                    )
-
-        chatbot_interface = gr.Chatbot(label="Conversation")
-
-        with gr.Row():
-            with gr.Column():
-                audio_input_chat = gr.Microphone(
-                    label="Speak your message",
-                    type="filepath",
-                )
-                audio_output_chat = gr.Audio(autoplay=True)
-            with gr.Column():
-                text_input_chat = gr.Textbox(
-                    label="Type your message",
-                    lines=1,
-                )
-                send_btn_chat = gr.Button("Send Message")
-                clear_btn_chat = gr.Button("Clear Conversation")
-
-        conversation_state = gr.State(
-            value=[
-                {
-                    "role": "system",
-                    "content": "You are not an AI assistant, you are whoever the user says you are. You must stay in character. Keep your responses concise since they will be spoken out loud.",
-                }
-            ]
-        )
-
-        # Modify process_audio_input to use model and tokenizer from state
-        @gpu_decorator
-        def process_audio_input(audio_path, text, history, conv_state):
-            """Handle audio or text input from user"""
-
-            if not audio_path and not text.strip():
-                return history, conv_state, ""
-
-            if audio_path:
-                text = preprocess_ref_audio_text(audio_path, text)[1]
-
-            if not text.strip():
-                return history, conv_state, ""
-
-            conv_state.append({"role": "user", "content": text})
-            history.append((text, None))
-
-            response = generate_response(conv_state, chat_model_state, chat_tokenizer_state)
-
-            conv_state.append({"role": "assistant", "content": response})
-            history[-1] = (text, response)
-
-            return history, conv_state, ""
-
-        @gpu_decorator
-        def generate_audio_response(history, ref_audio, ref_text, remove_silence):
-            """Generate TTS audio for AI response"""
-            if not history or not ref_audio:
-                return None
-
-            last_user_message, last_ai_response = history[-1]
-            if not last_ai_response:
-                return None
-
-            audio_result, _, ref_text_out = infer(
-                ref_audio,
-                ref_text,
-                last_ai_response,
-                tts_model_choice,
-                remove_silence,
-                cross_fade_duration=0.15,
-                speed=1.0,
-                show_info=print,  # show_info=print no pull to top when generating
-            )
-            return audio_result, ref_text_out
-
-        def clear_conversation():
-            """Reset the conversation"""
-            return [], [
-                {
-                    "role": "system",
-                    "content": "You are not an AI assistant, you are whoever the user says you are. You must stay in character. Keep your responses concise since they will be spoken out loud.",
-                }
-            ]
-
-        def update_system_prompt(new_prompt):
-            """Update the system prompt and reset the conversation"""
-            new_conv_state = [{"role": "system", "content": new_prompt}]
-            return [], new_conv_state
-
-        # Handle audio input
-        audio_input_chat.stop_recording(
-            process_audio_input,
-            inputs=[audio_input_chat, text_input_chat, chatbot_interface, conversation_state],
-            outputs=[chatbot_interface, conversation_state],
-        ).then(
-            generate_audio_response,
-            inputs=[chatbot_interface, ref_audio_chat, ref_text_chat, remove_silence_chat],
-            outputs=[audio_output_chat, ref_text_chat],
-        ).then(
-            lambda: None,
-            None,
-            audio_input_chat,
-        )
-
-        # Handle text input
-        text_input_chat.submit(
-            process_audio_input,
-            inputs=[audio_input_chat, text_input_chat, chatbot_interface, conversation_state],
-            outputs=[chatbot_interface, conversation_state],
-        ).then(
-            generate_audio_response,
-            inputs=[chatbot_interface, ref_audio_chat, ref_text_chat, remove_silence_chat],
-            outputs=[audio_output_chat, ref_text_chat],
-        ).then(
-            lambda: None,
-            None,
-            text_input_chat,
-        )
-
-        # Handle send button
-        send_btn_chat.click(
-            process_audio_input,
-            inputs=[audio_input_chat, text_input_chat, chatbot_interface, conversation_state],
-            outputs=[chatbot_interface, conversation_state],
-        ).then(
-            generate_audio_response,
-            inputs=[chatbot_interface, ref_audio_chat, ref_text_chat, remove_silence_chat],
-            outputs=[audio_output_chat, ref_text_chat],
-        ).then(
-            lambda: None,
-            None,
-            text_input_chat,
-        )
-
-        # Handle clear button
-        clear_btn_chat.click(
-            clear_conversation,
-            outputs=[chatbot_interface, conversation_state],
-        )
-
-        # Handle system prompt change and reset conversation
-        system_prompt_chat.change(
-            update_system_prompt,
-            inputs=system_prompt_chat,
-            outputs=[chatbot_interface, conversation_state],
-        )
-
-
-with gr.Blocks(css="""
+with gr.Blocks(
+    title="Talkclone",  # 👈 this sets the browser tab title
+    css="""
         footer { visibility: hidden; }
         #custom-footer {
             text-align: center;
             font-weight: bold;
             margin-top: 2rem;
         }
-    """) as app:
+    """
+) as app:
     gr.Markdown(
         f"""
 # Talkclone
@@ -832,7 +603,7 @@ If you're having issues, try converting your reference audio to WAV or MP3, clip
     "-s",
     default=False,
     is_flag=True,
-    help="Share the app via Gradio share link",
+    help="Share the app via Talkclone share link",
 )
 @click.option("--api", "-a", default=False, is_flag=True, help="Allow API access")
 @click.option(
