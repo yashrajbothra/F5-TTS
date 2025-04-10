@@ -88,6 +88,11 @@ custom_ema_model, pre_custom_path = None, ""
 chat_model_state = None
 chat_tokenizer_state = None
 
+remove_audio_css = """
+.icon-button-wrapper.top-panel.hide-top-corner {
+    display: none !important;
+}
+"""
 
 @gpu_decorator
 def generate_response(messages, model, tokenizer):
@@ -180,7 +185,7 @@ def infer(
     return (final_sample_rate, final_wave), spectrogram_path, ref_text
 
 
-with gr.Blocks() as app_tts:
+with gr.Blocks(css=remove_audio_css) as app_tts:
     gr.Markdown("# Batched TTS")
     ref_audio_input = gr.Audio(label="Reference Audio", type="filepath")
     gen_text_input = gr.Textbox(label="Text to Generate", lines=10)
