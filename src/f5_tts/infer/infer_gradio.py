@@ -53,9 +53,18 @@ DEFAULT_TTS_MODEL_CFG = [
 ]
 
 
-# load models
-
+# Load models
 vocoder = load_vocoder()
+
+# Set the number of threads PyTorch will use for CPU operations
+num_cores = torch.get_num_threads()
+print(f"Default number of PyTorch threads: {num_cores}")
+desired_cores = torch.get_num_threads()  # Use all available logical cores
+torch.set_num_threads(desired_cores)
+print(f"Setting PyTorch to use {torch.get_num_threads()} threads for CPU.")
+# Optionally, for inter-operator parallelism (less common for inference on CPU):
+# torch.set_num_interop_threads(desired_cores)
+# print(f"Setting PyTorch inter-op threads to {torch.get_num_interop_threads()}.")
 
 
 def load_f5tts():
@@ -304,23 +313,23 @@ with gr.Blocks() as app_multistyle:
     with gr.Row():
         gr.Markdown(
             """
-            **Example Input:**                                                                      
-            {Regular} Hello, I'd like to order a sandwich please.                                                         
-            {Surprised} What do you mean you're out of bread?                                                                      
-            {Sad} I really wanted a sandwich though...                                                              
-            {Angry} You know what, darn you and your little shop!                                                                       
-            {Whisper} I'll just go back home and cry now.                                                                           
-            {Shouting} Why me?!                                                                         
+            **Example Input:**
+            {Regular} Hello, I'd like to order a sandwich please.
+            {Surprised} What do you mean you're out of bread?
+            {Sad} I really wanted a sandwich though...
+            {Angry} You know what, darn you and your little shop!
+            {Whisper} I'll just go back home and cry now.
+            {Shouting} Why me?!
             """
         )
 
         gr.Markdown(
             """
-            **Example Input 2:**                                                                                
-            {Speaker1_Happy} Hello, I'd like to order a sandwich please.                                                            
-            {Speaker2_Regular} Sorry, we're out of bread.                                                                                
-            {Speaker1_Sad} I really wanted a sandwich though...                                                                             
-            {Speaker2_Whisper} I'll give you the last one I was hiding.                                                                     
+            **Example Input 2:**
+            {Speaker1_Happy} Hello, I'd like to order a sandwich please.
+            {Speaker2_Regular} Sorry, we're out of bread.
+            {Speaker1_Sad} I really wanted a sandwich though...
+            {Speaker2_Whisper} I'll give you the last one I was hiding.
             """
         )
 
@@ -395,8 +404,8 @@ with gr.Blocks() as app_multistyle:
     gen_text_input_multistyle = gr.Textbox(
         label="Text to Generate",
         lines=10,
-        placeholder="Enter the script with speaker names (or emotion types) at the start of each block, e.g.:\n\n{Regular} Hello, I'd like to order a sandwich please.\n{Surprised} What do you mean you're out of bread?\n{Sad} I really wanted a sandwich though...\n{Angry} You know what, darn you and your little shop!\n{Whisper} I'll just go back home and cry now.\n{Shouting} Why me?!",
-    )
+        placeholder="Enter the script with speaker names (or emotion types) at the start of each block, e.g.:
+        )
 
     def make_insert_speech_type_fn(index):
         def insert_speech_type_fn(current_text, speech_type_name):
