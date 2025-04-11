@@ -636,7 +636,6 @@ def main(port, host, share, api, root_path, inbrowser):
         root_path=root_path,
         inbrowser=inbrowser,
         pwa=True,
-        prevent_thread_lock=True
     )
 
 
