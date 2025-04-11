@@ -404,7 +404,7 @@ with gr.Blocks() as app_multistyle:
     gen_text_input_multistyle = gr.Textbox(
         label="Text to Generate",
         lines=10,
-        placeholder="Enter the script with speaker names (or emotion types) at the start of each block, e.g.:
+        placeholder="Enter the script with speaker names (or emotion types) at the start of each block, e.g.:"
         )
 
     def make_insert_speech_type_fn(index):
