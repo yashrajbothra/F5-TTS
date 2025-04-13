@@ -645,6 +645,7 @@ def main(port, host, share, api, root_path, inbrowser):
         root_path=root_path,
         inbrowser=inbrowser,
         pwa=True,
+        headers={"Content-Security-Policy": "upgrade-insecure-requests"}
     )
 
 
