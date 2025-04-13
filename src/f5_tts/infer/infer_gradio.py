@@ -196,7 +196,7 @@ def infer(
 
 with gr.Blocks(css=remove_audio_css) as app_tts:
     gr.Markdown("# Batched TTS")
-    ref_audio_input = gr.Audio(label="Reference Audio", type="filepath")
+    ref_audio_input = gr.Audio(label="Reference Audio", type="filepath", max_length=15,min_length=4)
     gen_text_input = gr.Textbox(label="Text to Generate", lines=10)
     generate_btn = gr.Button("Generate", variant="primary")
     with gr.Accordion("Advanced Settings", open=False):
