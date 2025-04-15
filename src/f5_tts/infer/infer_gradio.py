@@ -237,17 +237,6 @@ with gr.Blocks(css=remove_audio_css) as app_tts:
 
     audio_output = gr.Audio(label="Synthesized Audio")
     spectrogram_output = gr.Image(label="Spectrogram")
-    stop_btn = gr.Button("Stop", variant="stop")
-
-    def stop_generation(stop_flag):
-        stop_flag = True
-        return gr.Info("Generation stopped.")
-
-    stop_btn.click(
-        stop_generation,
-        inputs=[... , stop_flag],
-        outputs=[],
-    )
 
     @gpu_decorator
     def basic_tts(
