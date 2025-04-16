@@ -101,6 +101,15 @@ remove_audio_css = """
 .icon-button-wrapper.top-panel.hide-top-corner {
     display: none !important;
 }
+.btn-cta--light-green {
+    border-width: 2px;
+    border-color: rgb(180 253 131 / var(--tw-border-opacity, 1));
+    background-color: rgb(180 253 131 / var(--tw-bg-opacity, 1));
+    color: rgb(0 0 0 / var(--tw-text-opacity, 1));
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+}
 """
 
 @gpu_decorator
@@ -198,7 +207,7 @@ with gr.Blocks(css=remove_audio_css) as app_tts:
     gr.Markdown("# Upload MP3/WAV File")
     ref_audio_input = gr.Audio(label="Reference Audio", type="filepath", max_length=15,min_length=4)
     gen_text_input = gr.Textbox(label="Text to Generate", lines=10)
-    generate_btn = gr.Button("Generate", variant="primary")
+    generate_btn = gr.Button("Generate", elem_classes="btn-cta--light-green")
     with gr.Accordion("Advanced Settings", open=False):
         ref_text_input = gr.Textbox(
             label="Reference Text",
