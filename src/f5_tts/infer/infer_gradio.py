@@ -102,12 +102,8 @@ remove_audio_css = """
     display: none !important;
 }
 """
-custom_theme = gr.themes.Default().set(
-    button_primary_background_fill="#B4FD83",
-    button_primary_background_fill_hover="#A0F36A",
-    button_primary_text_color="#000000",
-    button_primary_border_color="#B4FD83",
-    button_primary_shadow="none",
+custom_theme = gr.themes.Default(
+    primary_hue="B4FD83",  # You can also use a hex here like "#B4FD83"
 )
 
 @gpu_decorator
