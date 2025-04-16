@@ -102,8 +102,12 @@ remove_audio_css = """
     display: none !important;
 }
 """
-custom_theme = gr.themes.Default(
-    primary_hue="green",  
+custom_theme = gr.themes.Default().set(
+    button_primary_background_fill="#B4FD83",
+    button_primary_background_fill_hover="#A0F36A",
+    button_primary_text_color="#000000",
+    button_primary_border_color="#B4FD83",
+    button_primary_shadow="none",
 )
 
 @gpu_decorator
@@ -197,7 +201,7 @@ def infer(
     return (final_sample_rate, final_wave), spectrogram_path, ref_text
 
 
-with gr.Blocks(css=remove_audio_css,theme=custom_theme) as app_tts:
+with gr.Blocks(theme=custom_theme,css=remove_audio_css) as app_tts:
     gr.Markdown("# Upload MP3/WAV File")
     ref_audio_input = gr.Audio(label="Reference Audio", type="filepath", max_length=15,min_length=4)
     gen_text_input = gr.Textbox(label="Text to Generate", lines=10)
