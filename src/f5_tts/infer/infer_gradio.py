@@ -603,11 +603,6 @@ If you're having issues, try converting your reference audio to WAV or MP3, clip
         with open(last_used_custom, "w", encoding="utf-8") as f:
             f.write(custom_ckpt_path + "\n" + custom_vocab_path + "\n" + custom_model_cfg + "\n")
 
-    gr.TabbedInterface(
-        [app_tts, app_multistyle],
-        ["Basic-TTS", "Multi-Speech"],
-    )
-
     gr.Markdown(
         "Made With Love❤️ From Noman Elahi Dashti",
         elem_id="custom-footer"
