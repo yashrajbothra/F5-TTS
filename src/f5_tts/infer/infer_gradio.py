@@ -201,7 +201,7 @@ with gr.Blocks(css=remove_audio_css,theme=custom_theme) as app_tts:
     gr.Markdown("# Upload MP3/WAV File")
     ref_audio_input = gr.Audio(label="Reference Audio", type="filepath", max_length=15,min_length=4)
     gen_text_input = gr.Textbox(label="Text to Generate", lines=10)
-    generate_btn = gr.Button("Generate", variant="primary")
+    generate_btn = gr.Button("Generate Voice", variant="primary")
     with gr.Accordion("Advanced Settings", open=False):
         ref_text_input = gr.Textbox(
             label="Reference Text",
