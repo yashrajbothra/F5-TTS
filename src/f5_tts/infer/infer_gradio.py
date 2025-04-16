@@ -101,16 +101,16 @@ remove_audio_css = """
 .icon-button-wrapper.top-panel.hide-top-corner {
     display: none !important;
 }
-button.primary {
-    background-color: #10b981 !important; /* Your new primary color (e.g., Tailwind's emerald-500) */
-    border-color: #10b981 !important;
-    color: white !important;
+button[class*="primary"] {
+    border: 2px solid #B4FD83 !important;
+    background-color: #B4FD83 !important;
+    color: #000 !important;
+    box-shadow: none !important;
 }
 
-/* Optional: Hover effect */
-button.primary:hover {
-    background-color: #059669 !important;
-    border-color: #059669 !important;
+button[class*="primary"]:hover {
+    background-color: #A0F36A !important;
+    border-color: #A0F36A !important;
 }
 """
 
