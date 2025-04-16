@@ -101,18 +101,10 @@ remove_audio_css = """
 .icon-button-wrapper.top-panel.hide-top-corner {
     display: none !important;
 }
-button[class*="primary"] {
-    border: 2px solid #B4FD83 !important;
-    background-color: #B4FD83 !important;
-    color: #000 !important;
-    box-shadow: none !important;
-}
-
-button[class*="primary"]:hover {
-    background-color: #A0F36A !important;
-    border-color: #A0F36A !important;
-}
 """
+custom_theme = gr.themes.Default(
+    primary_hue="green",  
+)
 
 @gpu_decorator
 def generate_response(messages, model, tokenizer):
@@ -205,7 +197,7 @@ def infer(
     return (final_sample_rate, final_wave), spectrogram_path, ref_text
 
 
-with gr.Blocks(css=remove_audio_css) as app_tts:
+with gr.Blocks(css=remove_audio_css,theme=custom_theme) as app_tts:
     gr.Markdown("# Upload MP3/WAV File")
     ref_audio_input = gr.Audio(label="Reference Audio", type="filepath", max_length=15,min_length=4)
     gen_text_input = gr.Textbox(label="Text to Generate", lines=10)
