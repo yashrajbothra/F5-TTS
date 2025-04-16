@@ -554,6 +554,7 @@ with gr.Blocks() as app_multistyle:
 
 with gr.Blocks(
     title="Talkclone",  # 👈 this sets the browser tab title
+    theme=custom_theme,
     css="""
         footer { visibility: hidden; }
         #custom-footer {
