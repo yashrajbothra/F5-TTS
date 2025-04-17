@@ -102,8 +102,22 @@ remove_audio_css = """
     display: none !important;
 }
 """
-custom_theme = gr.themes.Default(
-    primary_hue="B4FD83",  # You can also use a hex here like "#B4FD83"
+custom_theme = gr.themes.Base(
+    primary_hue="green",
+    secondary_hue="gray",
+    neutral_hue="slate"
+).set(
+    body_background_fill="#111827",
+    body_text_color="#F9FAFB",
+    block_background_fill="#1F2937",
+    block_border_color="#10B981",
+    input_background_fill="#374151",
+    input_border_color="#10B981",
+    
+    # 👇 Custom button color
+    button_primary_background_fill="#B4FD83",
+    button_primary_background_fill_hover="#A5F070",  # Slightly darker for hover
+    button_primary_text_color="#111827"  # Dark text on light green
 )
 
 @gpu_decorator
@@ -198,7 +212,15 @@ def infer(
 
 
 with gr.Blocks(theme=custom_theme,css=remove_audio_css) as app_tts:
-    gr.Markdown("# Upload MP3/WAV File")
+        gr.Markdown(
+        f"""
+# Talkclone
+
+If you're having issues, try converting your reference audio to WAV or MP3, clipping it to 12s with  ✂  in the bottom right corner (otherwise might have non-optimal auto-trimmed result).
+
+**NOTE: Reference text will be automatically transcribed with Whisper if not provided. For best results, keep your reference clips short (<12s). Ensure the audio is fully uploaded before generating.**
+"""
+    )
     ref_audio_input = gr.Audio(label="Reference Audio", type="filepath", max_length=15,min_length=4)
     gen_text_input = gr.Textbox(label="Text to Generate", lines=10)
     generate_btn = gr.Button("Generate Voice", variant="primary")
@@ -239,7 +261,6 @@ with gr.Blocks(theme=custom_theme,css=remove_audio_css) as app_tts:
         )
 
     audio_output = gr.Audio(label="Synthesized Audio")
-    spectrogram_output = gr.Image(label="Spectrogram")
 
     @gpu_decorator
     def basic_tts(
@@ -303,251 +324,6 @@ def parse_speechtypes_text(gen_text):
     return segments
 
 
-with gr.Blocks() as app_multistyle:
-    # New section for multistyle generation
-    gr.Markdown(
-        """
-    # Multiple Speech-Type Generation
-
-    This section allows you to generate multiple speech types or multiple people's voices. Enter your text in the format shown below, and the system will generate speech using the appropriate type. If unspecified, the model will use the regular speech type. The current speech type will be used until the next speech type is specified.
-    """
-    )
-
-    with gr.Row():
-        gr.Markdown(
-            """
-            **Example Input:**
-            {Regular} Hello, I'd like to order a sandwich please.
-            {Surprised} What do you mean you're out of bread?
-            {Sad} I really wanted a sandwich though...
-            {Angry} You know what, darn you and your little shop!
-            {Whisper} I'll just go back home and cry now.
-            {Shouting} Why me?!
-            """
-        )
-
-        gr.Markdown(
-            """
-            **Example Input 2:**
-            {Speaker1_Happy} Hello, I'd like to order a sandwich please.
-            {Speaker2_Regular} Sorry, we're out of bread.
-            {Speaker1_Sad} I really wanted a sandwich though...
-            {Speaker2_Whisper} I'll give you the last one I was hiding.
-            """
-        )
-
-    gr.Markdown(
-        "Upload different audio clips for each speech type. The first speech type is mandatory. You can add additional speech types by clicking the 'Add Speech Type' button."
-    )
-
-    # Regular speech type (mandatory)
-    with gr.Row() as regular_row:
-        with gr.Column():
-            regular_name = gr.Textbox(value="Regular", label="Speech Type Name")
-            regular_insert = gr.Button("Insert Label", variant="secondary")
-        regular_audio = gr.Audio(label="Regular Reference Audio", type="filepath")
-        regular_ref_text = gr.Textbox(label="Reference Text (Regular)", lines=2)
-
-    # Regular speech type (max 100)
-    max_speech_types = 100
-    speech_type_rows = [regular_row]
-    speech_type_names = [regular_name]
-    speech_type_audios = [regular_audio]
-    speech_type_ref_texts = [regular_ref_text]
-    speech_type_delete_btns = [None]
-    speech_type_insert_btns = [regular_insert]
-
-    # Additional speech types (99 more)
-    for i in range(max_speech_types - 1):
-        with gr.Row(visible=False) as row:
-            with gr.Column():
-                name_input = gr.Textbox(label="Speech Type Name")
-                delete_btn = gr.Button("Delete Type", variant="secondary")
-                insert_btn = gr.Button("Insert Label", variant="secondary")
-            audio_input = gr.Audio(label="Reference Audio", type="filepath")
-            ref_text_input = gr.Textbox(label="Reference Text", lines=2)
-        speech_type_rows.append(row)
-        speech_type_names.append(name_input)
-        speech_type_audios.append(audio_input)
-        speech_type_ref_texts.append(ref_text_input)
-        speech_type_delete_btns.append(delete_btn)
-        speech_type_insert_btns.append(insert_btn)
-
-    # Button to add speech type
-    add_speech_type_btn = gr.Button("Add Speech Type")
-
-    # Keep track of autoincrement of speech types, no roll back
-    speech_type_count = 1
-
-    # Function to add a speech type
-    def add_speech_type_fn():
-        row_updates = [gr.update() for _ in range(max_speech_types)]
-        global speech_type_count
-        if speech_type_count < max_speech_types:
-            row_updates[speech_type_count] = gr.update(visible=True)
-            speech_type_count += 1
-        else:
-            gr.Warning("Exhausted maximum number of speech types. Consider restart the app.")
-        return row_updates
-
-    add_speech_type_btn.click(add_speech_type_fn, outputs=speech_type_rows)
-
-    # Function to delete a speech type
-    def delete_speech_type_fn():
-        return gr.update(visible=False), None, None, None
-
-    # Update delete button clicks
-    for i in range(1, len(speech_type_delete_btns)):
-        speech_type_delete_btns[i].click(
-            delete_speech_type_fn,
-            outputs=[speech_type_rows[i], speech_type_names[i], speech_type_audios[i], speech_type_ref_texts[i]],
-        )
-
-    # Text input for the prompt
-    gen_text_input_multistyle = gr.Textbox(
-        label="Text to Generate",
-        lines=10,
-        placeholder="Enter the script with speaker names (or emotion types) at the start of each block, e.g.:"
-        )
-
-    def make_insert_speech_type_fn(index):
-        def insert_speech_type_fn(current_text, speech_type_name):
-            current_text = current_text or ""
-            speech_type_name = speech_type_name or "None"
-            updated_text = current_text + f"{{{speech_type_name}}} "
-            return updated_text
-
-        return insert_speech_type_fn
-
-    for i, insert_btn in enumerate(speech_type_insert_btns):
-        insert_fn = make_insert_speech_type_fn(i)
-        insert_btn.click(
-            insert_fn,
-            inputs=[gen_text_input_multistyle, speech_type_names[i]],
-            outputs=gen_text_input_multistyle,
-        )
-
-    with gr.Accordion("Advanced Settings", open=False):
-        remove_silence_multistyle = gr.Checkbox(
-            label="Remove Silences",
-            value=True,
-        )
-
-    # Generate button
-    generate_multistyle_btn = gr.Button("Generate Multi-Style Speech", variant="primary")
-
-    # Output audio
-    audio_output_multistyle = gr.Audio(label="Synthesized Audio")
-
-    @gpu_decorator
-    def generate_multistyle_speech(
-        gen_text,
-        *args,
-    ):
-        speech_type_names_list = args[:max_speech_types]
-        speech_type_audios_list = args[max_speech_types : 2 * max_speech_types]
-        speech_type_ref_texts_list = args[2 * max_speech_types : 3 * max_speech_types]
-        remove_silence = args[3 * max_speech_types]
-        # Collect the speech types and their audios into a dict
-        speech_types = OrderedDict()
-
-        ref_text_idx = 0
-        for name_input, audio_input, ref_text_input in zip(
-            speech_type_names_list, speech_type_audios_list, speech_type_ref_texts_list
-        ):
-            if name_input and audio_input:
-                speech_types[name_input] = {"audio": audio_input, "ref_text": ref_text_input}
-            else:
-                speech_types[f"@{ref_text_idx}@"] = {"audio": "", "ref_text": ""}
-            ref_text_idx += 1
-
-        # Parse the gen_text into segments
-        segments = parse_speechtypes_text(gen_text)
-
-        # For each segment, generate speech
-        generated_audio_segments = []
-        current_style = "Regular"
-
-        for segment in segments:
-            style = segment["style"]
-            text = segment["text"]
-
-            if style in speech_types:
-                current_style = style
-            else:
-                gr.Warning(f"Type {style} is not available, will use Regular as default.")
-                current_style = "Regular"
-
-            try:
-                ref_audio = speech_types[current_style]["audio"]
-            except KeyError:
-                gr.Warning(f"Please provide reference audio for type {current_style}.")
-                return [None] + [speech_types[style]["ref_text"] for style in speech_types]
-            ref_text = speech_types[current_style].get("ref_text", "")
-
-            # Generate speech for this segment
-            audio_out, _, ref_text_out = infer(
-                ref_audio, ref_text, text, tts_model_choice, remove_silence, 0, show_info=print
-            )  # show_info=print no pull to top when generating
-            sr, audio_data = audio_out
-
-            generated_audio_segments.append(audio_data)
-            speech_types[current_style]["ref_text"] = ref_text_out
-
-        # Concatenate all audio segments
-        if generated_audio_segments:
-            final_audio_data = np.concatenate(generated_audio_segments)
-            return [(sr, final_audio_data)] + [speech_types[style]["ref_text"] for style in speech_types]
-        else:
-            gr.Warning("No audio generated.")
-            return [None] + [speech_types[style]["ref_text"] for style in speech_types]
-
-    generate_multistyle_btn.click(
-        generate_multistyle_speech,
-        inputs=[
-            gen_text_input_multistyle,
-        ]
-        + speech_type_names
-        + speech_type_audios
-        + speech_type_ref_texts
-        + [
-            remove_silence_multistyle,
-        ],
-        outputs=[audio_output_multistyle] + speech_type_ref_texts,
-    )
-
-    # Validation function to disable Generate button if speech types are missing
-    def validate_speech_types(gen_text, regular_name, *args):
-        speech_type_names_list = args
-
-        # Collect the speech types names
-        speech_types_available = set()
-        if regular_name:
-            speech_types_available.add(regular_name)
-        for name_input in speech_type_names_list:
-            if name_input:
-                speech_types_available.add(name_input)
-
-        # Parse the gen_text to get the speech types used
-        segments = parse_speechtypes_text(gen_text)
-        speech_types_in_text = set(segment["style"] for segment in segments)
-
-        # Check if all speech types in text are available
-        missing_speech_types = speech_types_in_text - speech_types_available
-
-        if missing_speech_types:
-            # Disable the generate button
-            return gr.update(interactive=False)
-        else:
-            # Enable the generate button
-            return gr.update(interactive=True)
-
-    gen_text_input_multistyle.change(
-        validate_speech_types,
-        inputs=[gen_text_input_multistyle, regular_name] + speech_type_names,
-        outputs=generate_multistyle_btn,
-    )
-
 with gr.Blocks(
     title="Talkclone",  # 👈 this sets the browser tab title
     theme=custom_theme,
@@ -560,16 +336,6 @@ with gr.Blocks(
         }
     """
 ) as app:
-    gr.Markdown(
-        f"""
-# Talkclone
-
-If you're having issues, try converting your reference audio to WAV or MP3, clipping it to 12s with  ✂  in the bottom right corner (otherwise might have non-optimal auto-trimmed result).
-
-**NOTE: Reference text will be automatically transcribed with Whisper if not provided. For best results, keep your reference clips short (<12s). Ensure the audio is fully uploaded before generating.**
-"""
-    )
-
     last_used_custom = files("f5_tts").joinpath("infer/.cache/last_used_custom_model_info_v1.txt")
 
     def load_last_used_custom():
@@ -603,10 +369,7 @@ If you're having issues, try converting your reference audio to WAV or MP3, clip
         with open(last_used_custom, "w", encoding="utf-8") as f:
             f.write(custom_ckpt_path + "\n" + custom_vocab_path + "\n" + custom_model_cfg + "\n")
 
-    gr.TabbedInterface(
-        [app_tts, app_multistyle],
-        ["Basic-TTS", "Multi-Speech"],
-    )
+    app = app_tts
 
     gr.Markdown(
         "Made With Love❤️ From Noman Elahi Dashti",
