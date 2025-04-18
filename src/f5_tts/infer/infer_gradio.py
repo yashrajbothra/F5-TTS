@@ -405,7 +405,7 @@ with gr.Blocks(title="TalkClone", theme=theme, css=custom_css) as app:
             """)
             
             # Reference audio upload section
-            with gr.Box(elem_classes="upload-area"):
+            with gr.Group(elem_classes="upload-area"):
                 gr.HTML("""
                     <div class="upload-icon">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
