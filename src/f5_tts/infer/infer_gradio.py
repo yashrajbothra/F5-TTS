@@ -75,29 +75,6 @@ def load_f5tts():
 
 F5TTS_ema_model = load_f5tts()
 
-remove_audio_css = """
-.icon-button-wrapper.top-panel.hide-top-corner {
-    display: none !important;
-}
-"""
-custom_theme = gr.themes.Default(
-    primary_hue="green",
-    secondary_hue="gray",
-    neutral_hue="slate"
-).set(
-    body_background_fill="#111827",
-    body_text_color="#F9FAFB",
-    block_background_fill="#1F2937",
-    block_border_color="#10B981",
-    input_background_fill="#374151",
-    input_border_color="#10B981",
-    
-    # 👇 Custom button color
-    button_primary_background_fill="#B4FD83",
-    button_primary_background_fill_hover="#A5F070",  # Slightly darker for hover
-    button_primary_text_color="#111827"  # Dark text on light green
-)
-
 @gpu_decorator
 def generate_response(messages, model, tokenizer):
     """Generate response using Qwen"""
@@ -173,6 +150,30 @@ def infer(
         save_spectrogram(combined_spectrogram, spectrogram_path)
 
     return (final_sample_rate, final_wave), spectrogram_path, ref_text
+
+
+remove_audio_css = """
+.icon-button-wrapper.top-panel.hide-top-corner {
+    display: none !important;
+}
+"""
+custom_theme = gr.themes.Default(
+    primary_hue="green",
+    secondary_hue="gray",
+    neutral_hue="slate"
+).set(
+    body_background_fill="#111827",
+    body_text_color="#F9FAFB",
+    block_background_fill="#1F2937",
+    block_border_color="#10B981",
+    input_background_fill="#374151",
+    input_border_color="#10B981",
+    
+    # 👇 Custom button color
+    button_primary_background_fill="#B4FD83",
+    button_primary_background_fill_hover="#A5F070",  # Slightly darker for hover
+    button_primary_text_color="#111827"  # Dark text on light green
+)
 
 
 with gr.Blocks(theme=custom_theme) as app_tts:
