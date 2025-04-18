@@ -296,7 +296,7 @@ with gr.Blocks(theme=custom_theme, css=remove_audio_css) as app_tts:
             nfe_slider,
             speed_slider,
         ],
-        outputs=[audio_output, spectrogram_output, ref_text_input],
+        outputs=[audio_output, ref_text_input],
     )
 
 
