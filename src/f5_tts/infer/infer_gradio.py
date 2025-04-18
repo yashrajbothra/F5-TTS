@@ -371,7 +371,6 @@ theme = gr.themes.Base(
     button_primary_background_fill="linear-gradient(90deg, #4f46e5 0%, #9333ea 100%)",
     button_primary_background_fill_hover="linear-gradient(90deg, #4338ca 0%, #7e22ce 100%)",
     button_primary_text_color="#ffffff",
-    button_primary_border_width="0px",
     button_border_width="1px",
     button_border_color="#d1d5db",
     button_shadow="none",
