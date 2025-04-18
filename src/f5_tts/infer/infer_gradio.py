@@ -168,13 +168,13 @@ custom_theme = gr.themes.Default(
     block_border_color="#10B981",
     input_background_fill="#374151",
     input_border_color="#10B981",
-    
-    # 👇 Custom button color
     button_primary_background_fill="#B4FD83",
-    button_primary_background_fill_hover="#A5F070",  # Slightly darker for hover
-    button_primary_text_color="#111827"  # Dark text on light green
+    button_primary_background_fill_hover="#A5F070",
+    button_primary_text_color="#111827"
 )
 
+# Ensure the theme is fully configured before passing it to gr.Blocks
+custom_theme = custom_theme
 
 with gr.Blocks(theme=custom_theme) as app_tts:
     gr.Markdown(

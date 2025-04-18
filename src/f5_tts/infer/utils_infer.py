@@ -111,7 +111,7 @@ def load_vocoder(vocoder_name="vocos", is_local=False, local_path="", device=dev
             config_path = hf_hub_download(repo_id=repo_id, cache_dir=hf_cache_dir, filename="config.yaml")
             model_path = hf_hub_download(repo_id=repo_id, cache_dir=hf_cache_dir, filename="pytorch_model.bin")
         vocoder = Vocos.from_hparams(config_path)
-        state_dict = torch.load(model_path, map_location="cpu", weights_only=True)
+        state_dict = torch.load(model_path, map_location="cpu")
         from vocos.feature_extractors import EncodecFeatures
 
         if isinstance(vocoder.feature_extractor, EncodecFeatures):
