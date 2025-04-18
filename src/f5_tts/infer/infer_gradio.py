@@ -189,7 +189,6 @@ footer {
     text-align: center;
     font-weight: 500;
     margin-top: 2rem;
-    color: #6b7280;
 }
 """
 
