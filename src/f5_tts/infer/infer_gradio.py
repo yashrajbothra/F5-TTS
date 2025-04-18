@@ -73,29 +73,7 @@ def load_f5tts():
     return load_model(DiT, F5TTS_model_cfg, ckpt_path)
 
 
-def load_e2tts():
-    ckpt_path = str(cached_path("hf://SWivid/E2-TTS/E2TTS_Base/model_1200000.safetensors"))
-    E2TTS_model_cfg = dict(dim=1024, depth=24, heads=16, ff_mult=4, text_mask_padding=False, pe_attn_head=1)
-    return load_model(UNetT, E2TTS_model_cfg, ckpt_path)
-
-
-def load_custom(ckpt_path: str, vocab_path="", model_cfg=None):
-    ckpt_path, vocab_path = ckpt_path.strip(), vocab_path.strip()
-    if ckpt_path.startswith("hf://"):
-        ckpt_path = str(cached_path(ckpt_path))
-    if vocab_path.startswith("hf://"):
-        vocab_path = str(cached_path(vocab_path))
-    if model_cfg is None:
-        model_cfg = json.loads(DEFAULT_TTS_MODEL_CFG[2])
-    return load_model(DiT, model_cfg, ckpt_path, vocab_file=vocab_path)
-
-
 F5TTS_ema_model = load_f5tts()
-E2TTS_ema_model = load_e2tts() if USING_SPACES else None
-custom_ema_model, pre_custom_path = None, ""
-
-chat_model_state = None
-chat_tokenizer_state = None
 
 remove_audio_css = """
 .icon-button-wrapper.top-panel.hide-top-corner {
@@ -165,22 +143,8 @@ def infer(
 
     ref_audio, ref_text = preprocess_ref_audio_text(ref_audio_orig, ref_text, show_info=show_info)
 
-    if model == DEFAULT_TTS_MODEL:
-        ema_model = F5TTS_ema_model
-    elif model == "E2-TTS":
-        global E2TTS_ema_model
-        if E2TTS_ema_model is None:
-            show_info("Loading E2-TTS model...")
-            E2TTS_ema_model = load_e2tts()
-        ema_model = E2TTS_ema_model
-    elif isinstance(model, list) and model[0] == "Custom":
-        assert not USING_SPACES, "Only official checkpoints allowed in Spaces."
-        global custom_ema_model, pre_custom_path
-        if pre_custom_path != model[1]:
-            show_info("Loading Custom TTS model...")
-            custom_ema_model = load_custom(model[1], vocab_path=model[2], model_cfg=model[3])
-            pre_custom_path = model[1]
-        ema_model = custom_ema_model
+    # Use only the default model
+    ema_model = F5TTS_ema_model
 
     final_wave, final_sample_rate, combined_spectrogram = infer_process(
         ref_audio,
@@ -337,39 +301,6 @@ with gr.Blocks(
         }
     """
 ) as app:
-    last_used_custom = files("f5_tts").joinpath("infer/.cache/last_used_custom_model_info_v1.txt")
-
-    def load_last_used_custom():
-        try:
-            custom = []
-            with open(last_used_custom, "r", encoding="utf-8") as f:
-                for line in f:
-                    custom.append(line.strip())
-            return custom
-        except FileNotFoundError:
-            last_used_custom.parent.mkdir(parents=True, exist_ok=True)
-            return DEFAULT_TTS_MODEL_CFG
-
-    def switch_tts_model(new_choice):
-        global tts_model_choice
-        if new_choice == "Custom":  # override in case webpage is refreshed
-            custom_ckpt_path, custom_vocab_path, custom_model_cfg = load_last_used_custom()
-            tts_model_choice = ["Custom", custom_ckpt_path, custom_vocab_path, json.loads(custom_model_cfg)]
-            return (
-                gr.update(visible=True, value=custom_ckpt_path),
-                gr.update(visible=True, value=custom_vocab_path),
-                gr.update(visible=True, value=custom_model_cfg),
-            )
-        else:
-            tts_model_choice = new_choice
-            return gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
-
-    def set_custom_model(custom_ckpt_path, custom_vocab_path, custom_model_cfg):
-        global tts_model_choice
-        tts_model_choice = ["Custom", custom_ckpt_path, custom_vocab_path, json.loads(custom_model_cfg)]
-        with open(last_used_custom, "w", encoding="utf-8") as f:
-            f.write(custom_ckpt_path + "\n" + custom_vocab_path + "\n" + custom_model_cfg + "\n")
-
     app = app_tts
 
     gr.Markdown(
