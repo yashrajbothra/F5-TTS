@@ -185,15 +185,18 @@ button.primary:hover {
 """
 
 with gr.Blocks(theme=custom_theme, css=custom_css) as app_tts:
-    gr.Markdown(
-        """
-        # Talkclone
-
-        If you're having issues, try converting your reference audio to WAV or MP3, clipping it to 12s with ✂ in the bottom right corner (otherwise might have non-optimal auto-trimmed result).
-
-        **NOTE: Reference text will be automatically transcribed with Whisper if not provided. For best results, keep your reference clips short (<12s). Ensure the audio is fully uploaded before generating.**
-        """
-    )
+    gr.HTML("""
+        <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 1rem;">
+                <rect width="48" height="48" rx="8" fill="#1a1a1a" fill-opacity="0.05"/>
+                <path d="M18 12C18 10.3431 19.3431 9 21 9H24C25.6569 9 27 10.3431 27 12V30C27 31.6569 25.6569 33 24 33H21C19.3431 33 18 31.6569 18 30V12Z" fill="#1a1a1a"/>
+                <path d="M30 18C30 16.3431 31.3431 15 33 15H36C37.6569 15 39 16.3431 39 18V24C39 25.6569 37.6569 27 36 27H33C31.3431 27 30 25.6569 30 24V18Z" fill="#1a1a1a"/>
+                <path d="M30 36C30 34.3431 28.6569 33 27 33H19C17.3431 33 16 34.3431 16 36V36C16 37.6569 17.3431 39 19 39H27C28.6569 39 30 37.6569 30 36V36Z" fill="#1a1a1a"/>
+            </svg>
+            <h1 class="app-title">TalkClone</h1>
+        </div>
+        <p class="app-subtitle">Turn text into speech using your reference audio</p>
+    """)
 
     ref_audio_input = gr.Audio(label="Reference Audio", type="filepath", max_length=15, min_length=4)
     gen_text_input = gr.Textbox(label="Text to Generate", lines=10)
