@@ -81,21 +81,21 @@ remove_audio_css = """
 }
 """
 custom_theme = gr.themes.Base(
-    primary_hue="green",
+    primary_hue="blue",  # Updated primary color to blue
     secondary_hue="gray",
     neutral_hue="slate"
 ).set(
     body_background_fill="#111827",
     body_text_color="#F9FAFB",
     block_background_fill="#1F2937",
-    block_border_color="#10B981",
+    block_border_color="#2563EB",  # Updated border color to match blue theme
     input_background_fill="#374151",
-    input_border_color="#10B981",
+    input_border_color="#2563EB",  # Updated input border color
     
-    # 👇 Custom button color
-    button_primary_background_fill="#B4FD83",
-    button_primary_background_fill_hover="#A5F070",  # Slightly darker for hover
-    button_primary_text_color="#111827"  # Dark text on light green
+    # Updated button colors
+    button_primary_background_fill="#2563EB",  # Blue button background
+    button_primary_background_fill_hover="#1E40AF",  # Darker blue for hover
+    button_primary_text_color="#FFFFFF"  # White text on blue button
 )
 
 @gpu_decorator
@@ -275,7 +275,7 @@ def parse_speechtypes_text(gen_text):
 
     current_style = "Regular"
 
-    for i in range(len(tokens)):
+    for i in len(tokens):
         if i % 2 == 0:
             # This is text
             text = tokens[i].strip()
