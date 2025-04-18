@@ -372,7 +372,6 @@ theme = gr.themes.Base(
     button_primary_background_fill_hover="linear-gradient(90deg, #4338ca 0%, #7e22ce 100%)",
     button_primary_text_color="#ffffff",
     button_border_width="1px",
-    button_shadow="none",
     checkbox_background_color="#f3f4f6",
     checkbox_background_color_selected="#4f46e5",
     checkbox_border_color="#d1d5db",
