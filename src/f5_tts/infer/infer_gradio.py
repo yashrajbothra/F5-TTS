@@ -182,6 +182,15 @@ button.primary {
 button.primary:hover {
     background-color: #A5F070 !important;
 }
+footer {
+    display: none !important;
+}
+#custom-footer {
+    text-align: center;
+    font-weight: 500;
+    margin-top: 2rem;
+    color: #6b7280;
+}
 """
 
 with gr.Blocks(theme=custom_theme, css=custom_css) as app_tts:
