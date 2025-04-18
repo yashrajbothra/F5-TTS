@@ -84,18 +84,19 @@ custom_theme = gr.themes.Base(
     primary_hue="green",
     secondary_hue="gray",
     neutral_hue="slate"
+).set(
+    body_background_fill="#111827",
+    body_text_color="#F9FAFB",
+    block_background_fill="#1F2937",
+    block_border_color="#10B981",
+    input_background_fill="#374151",
+    input_border_color="#10B981",
+    
+    # 👇 Custom button color
+    button_primary_background_fill="#B4FD83",
+    button_primary_background_fill_hover="#A5F070",  # Slightly darker for hover
+    button_primary_text_color="#111827"  # Dark text on light green
 )
-
-# Then manually set each property
-custom_theme.body_background_fill = "#111827"
-custom_theme.body_text_color = "#F9FAFB"
-custom_theme.block_background_fill = "#1F2937"
-custom_theme.block_border_color = "#10B981"
-custom_theme.input_background_fill = "#374151"
-custom_theme.input_border_color = "#10B981"
-custom_theme.button_primary_background_fill = "#B4FD83"
-custom_theme.button_primary_background_fill_hover = "#A5F070"
-custom_theme.button_primary_text_color = "#111827"
 
 @gpu_decorator
 def generate_response(messages, model, tokenizer):
