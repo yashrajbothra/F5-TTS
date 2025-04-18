@@ -173,10 +173,18 @@ custom_theme = gr.themes.Default(
     button_primary_text_color="#111827"
 )
 
-# Ensure the theme is fully configured before passing it to gr.Blocks
-custom_theme = custom_theme
+# Add custom CSS to enforce button styles
+custom_css = """
+button.primary {
+    background-color: #B4FD83 !important;
+    color: #111827 !important;
+}
+button.primary:hover {
+    background-color: #A5F070 !important;
+}
+"""
 
-with gr.Blocks(theme=custom_theme) as app_tts:
+with gr.Blocks(theme=custom_theme, css=custom_css) as app_tts:
     gr.Markdown(
         """
         # Talkclone
