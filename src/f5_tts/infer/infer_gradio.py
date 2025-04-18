@@ -80,7 +80,7 @@ remove_audio_css = """
     display: none !important;
 }
 """
-custom_theme = gr.themes.Base(
+custom_theme = gr.themes.Default(
     primary_hue="green",
     secondary_hue="gray",
     neutral_hue="slate"
