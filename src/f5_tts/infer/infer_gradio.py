@@ -198,7 +198,7 @@ with gr.Blocks(theme=custom_theme, css=custom_css) as app_tts:
     """)
 
     ref_audio_input = gr.Audio(label="Reference Audio", type="filepath", max_length=15, min_length=4)
-    gen_text_input = gr.Textbox(label="Text to Generate", lines=10)
+    gen_text_input = gr.Textbox(label="Text to Generate", lines=10, placeholder="Type your script here...")
     generate_btn = gr.Button("Generate Voice", variant="primary")
     with gr.Accordion("Advanced Settings", open=False):
         ref_text_input = gr.Textbox(
@@ -237,6 +237,10 @@ with gr.Blocks(theme=custom_theme, css=custom_css) as app_tts:
         )
 
     audio_output = gr.Audio(label="Synthesized Audio")
+
+    gr.HTML(
+        '<div id="custom-footer">Made With Love❤️ From Noman Elahi Dashti</div>'
+    )
 
     @gpu_decorator
     def basic_tts(
