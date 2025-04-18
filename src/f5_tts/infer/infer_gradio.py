@@ -211,17 +211,18 @@ def infer(
     return (final_sample_rate, final_wave), spectrogram_path, ref_text
 
 
-with gr.Blocks(theme=custom_theme,css=remove_audio_css) as app_tts:
-        gr.Markdown(
-        f"""
-# Talkclone
+with gr.Blocks(theme=custom_theme, css=remove_audio_css) as app_tts:
+    gr.Markdown(
+        """
+        # Talkclone
 
-If you're having issues, try converting your reference audio to WAV or MP3, clipping it to 12s with  ✂  in the bottom right corner (otherwise might have non-optimal auto-trimmed result).
+        If you're having issues, try converting your reference audio to WAV or MP3, clipping it to 12s with ✂ in the bottom right corner (otherwise might have non-optimal auto-trimmed result).
 
-**NOTE: Reference text will be automatically transcribed with Whisper if not provided. For best results, keep your reference clips short (<12s). Ensure the audio is fully uploaded before generating.**
-"""
+        **NOTE: Reference text will be automatically transcribed with Whisper if not provided. For best results, keep your reference clips short (<12s). Ensure the audio is fully uploaded before generating.**
+        """
     )
-    ref_audio_input = gr.Audio(label="Reference Audio", type="filepath", max_length=15,min_length=4)
+
+    ref_audio_input = gr.Audio(label="Reference Audio", type="filepath", max_length=15, min_length=4)
     gen_text_input = gr.Textbox(label="Text to Generate", lines=10)
     generate_btn = gr.Button("Generate Voice", variant="primary")
     with gr.Accordion("Advanced Settings", open=False):
