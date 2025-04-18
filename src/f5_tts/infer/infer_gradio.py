@@ -175,7 +175,7 @@ def infer(
     return (final_sample_rate, final_wave), spectrogram_path, ref_text
 
 
-with gr.Blocks(theme=custom_theme, css=remove_audio_css) as app_tts:
+with gr.Blocks(theme=custom_theme) as app_tts:
     gr.Markdown(
         """
         # Talkclone
